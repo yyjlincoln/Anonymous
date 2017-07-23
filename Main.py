@@ -52,19 +52,26 @@ def pair(msg):
     global Room_id
     global People
     global PeopleAll
-    x=random.choice(People)
-    while(x==msg['FromUserName'] and PeopleAll[msg['FromUserName']]['Status']==True):
-        x=random.choice(People)
-    if PeopleAll[msg['FromUserName']]['Status']==True:     
-        Rmid=str(len(Room_id)+1)
-        Room_id.append(Rmid)
-        Room_Profile[Rmid]=[msg['FromUserName'],x]
-        PeopleAll[msg['FromUserName']]['Status']=Rmid
-        if msg['FromUserName'] not in People:
-            People.append(msg['FromUserName'])
-                    #会重复 2个人寻求匹配时会都进入该步骤然后重复
         print(Room_Profile)
         print(Room_id)
         print(PeopleAll)
         print(People)
 itchat.run()
+'''
+随机分配有可能会重复，存在问题。
+先忽略它吧...
+到这里已经把所有要随机分配的加入到People中了
+之后计划：
+使用多线程+for 第一个随机挑选剩下 然后确认<Status>值是否还是True(有中途离开) 然后更新状态 从people中删除 当len为0或者1的时候不工作，进入while延迟
+[线程开始]
+子程序开头
+while(len(People)<=1):
+    延迟指令(5s)
+while(len(People)>=2):
+    R=Random数
+    People[0] --> People[R]
+    if P[R]['Status']!=True:
+        people.pop(R)
+到子程序开头
+[线程结束]
+'''
