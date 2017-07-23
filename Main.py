@@ -74,4 +74,6 @@ while(len(People)>=2):
         people.pop(R)
 到子程序开头
 [线程结束]
+
+多线程参考 http://www.runoob.com/python3/python3-multithreading.html
 '''
