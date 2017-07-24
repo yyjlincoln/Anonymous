@@ -1,6 +1,10 @@
 #使用3个list
-#People[空闲wxid]
-#PeopleAll{'UserName':{'Gender':'微信提供','Status':True/False,'ToUser':''}}
+#[Wechat id]
+#[Room id]
+#{'Room id':[Wechatid1,Wechatid2]}
+#Free_People=[]
+##People[[WechatID,Gender,RoomID or Status,[...]]
+#PeopleAll{'UserName':{'Gender':'Male/Female','Status':'RoomID'/False,'ToUser':''}}
 import itchat
 import _thread
 import time
@@ -49,6 +53,14 @@ def message_recieved(msg):
                  print('人不够')
              itchat.send_msg('正在等待匹配.您也可以随时输入[离开]退出等待。',toUserName=msg['FromUserName'])
            #  pair()
+    if msg['Content']=='离开':
+        if msg['FromUserName'] in PeopleAll:
+            PeopleAll[msg['Content']]['Status']=False
+            if msg['FromUserName'] in GamePeople:
+                GamePeople.remove(msg['FromUserName'])
+                itchat.send_msg('#[系统通知]对方已下线.',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+                GamePeople.remove(PeopleAll[msg['FromUserName']]['ToUser'])
+                itchat.send_msg('#[系统通知]成功下线.',toUserName=msg['FromUserName'])
 def pair():
     global Room_Profile
     global Room_id
@@ -68,10 +80,10 @@ def pair():
         #People[0]+People[R]
         if PeopleAll[People[0]]['Status']==True and PeopleAll[People[R]]['Status']==True:
             print('匹配成功')
-            PeopleAll[People[0]]['Status']==False
-            PeopleAll[People[R]]['Status']==False
-            PeopleAll[People[0]]['ToUser']==People[R]
-            PeopleAll[People[R]]['ToUser']==People[0]
+            PeopleAll[People[0]]['Status']=False
+            PeopleAll[People[R]]['Status']=False
+            PeopleAll[People[0]]['ToUser']=People[R]
+            PeopleAll[People[R]]['ToUser']=People[0]
             #进入游戏
             if PeopleAll[People[R]]['Gender']==1:
                 Gender='男生'
@@ -88,7 +100,6 @@ def pair():
                 Gender='性别未知'
             itchat.send_msg('匹配成功,对方信息:'+Gender,toUserName=People[R])
             GamePeople.append(People[0])
-            GamePeople.append(People[R])
             People.pop(R)
             People.pop(0)
     print(PeopleAll)
