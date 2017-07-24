@@ -58,6 +58,7 @@ def message_recieved(msg):
                 GamePeople.remove(PeopleAll[msg['FromUserName']]['ToUser'])
                 itchat.send_msg('#[系统通知]成功下线.',toUserName=msg['FromUserName'])
                 PeopleAll[PeopleAll[msg['FromUserName']]['ToUser']]['ToUser']=''
+                PeopleAll[PeopleAll[msg['FromUserName']]['ToUser']]['Status']=False
                 PeopleAll[msg['FromUserName']]['ToUser']=''
                 
     else:
