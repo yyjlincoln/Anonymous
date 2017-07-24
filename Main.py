@@ -32,7 +32,6 @@ def message_recieved(msg):
             if PeopleAll[msg['FromUserName']] in GamePeople:
                 print('In Game')
                 itchat.send_msg('#[系统提示]您还在聊天中,请先结束聊天.本消息仅您可见.已发送\"开始\"至对方。',toUserName=msg['FromUserName'])
-                itchat.send_msg(msg['content'],toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
             elif PeopleAll[msg['FromUserName']]['Status']==True:
                 itchat.send_msg('#[系统提示]您已经在等待列表中了.本消息仅您可见.',toUserName=msg['FromUserName'])
             else:
@@ -54,13 +53,16 @@ def message_recieved(msg):
              itchat.send_msg('正在等待匹配.您也可以随时输入[离开]退出等待。',toUserName=msg['FromUserName'])
            #  pair()
     if msg['Content']=='离开':
+        #离开部分有问题 没有任何反应同时仍然可以继续聊天 需调试
         if msg['FromUserName'] in PeopleAll:
-            PeopleAll[msg['Content']]['Status']=False
+            PeopleAll[msg['FromUserName']]['Status']=False
             if msg['FromUserName'] in GamePeople:
                 GamePeople.remove(msg['FromUserName'])
                 itchat.send_msg('#[系统通知]对方已下线.',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
                 GamePeople.remove(PeopleAll[msg['FromUserName']]['ToUser'])
                 itchat.send_msg('#[系统通知]成功下线.',toUserName=msg['FromUserName'])
+    else:
+        itchat.send_msg(msg['Content'],toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
 def pair():
     global Room_Profile
     global Room_id
