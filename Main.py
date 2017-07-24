@@ -1,10 +1,7 @@
-#使用3个list
-#[Wechat id]
-#[Room id]
-#{'Room id':[Wechatid1,Wechatid2]}
-#Free_People=[]
-##People[[WechatID,Gender,RoomID or Status,[...]]
-#PeopleAll{'UserName':{'Gender':'Male/Female','Status':'RoomID'/False,'ToUser':''}}
+#People[] 空闲wxid
+#GamePeople[] 游戏中wxid
+#PeopleAll{'名称wxid':{'Gender':'微信提供 性别','Status':True/False(是否在等待中),'ToUser':'wxid 建立连接转发'}}
+#其它全局变量为累赘。
 import itchat
 import _thread
 import time
@@ -53,7 +50,6 @@ def message_recieved(msg):
              itchat.send_msg('正在等待匹配.您也可以随时输入[离开]退出等待。',toUserName=msg['FromUserName'])
            #  pair()
     if msg['Content']=='离开':
-        #离开部分有问题 没有任何反应同时仍然可以继续聊天 需调试
         if msg['FromUserName'] in PeopleAll:
             PeopleAll[msg['FromUserName']]['Status']=False
             if msg['FromUserName'] in GamePeople:
@@ -61,7 +57,13 @@ def message_recieved(msg):
                 itchat.send_msg('#[系统通知]对方已下线.',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
                 GamePeople.remove(PeopleAll[msg['FromUserName']]['ToUser'])
                 itchat.send_msg('#[系统通知]成功下线.',toUserName=msg['FromUserName'])
+                PeopleAll[msg['FromUserName']]['ToUser']=''
+                PeopleAll[PeopleAll[msg['FromUserName']]['ToUser']]['ToUser']=''
+                
     else:
+        if msg['FromUserName'] not in GamePeople and msg['Content']!='开始':
+            itchat.send_msg('您还没有开始聊天。请输入[开始]匹配对象。',toUserName=msg['FromUserName'])
+            return
         itchat.send_msg(msg['Content'],toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
 def pair():
     global Room_Profile
@@ -102,6 +104,7 @@ def pair():
                 Gender='性别未知'
             itchat.send_msg('匹配成功,对方信息:'+Gender,toUserName=People[R])
             GamePeople.append(People[0])
+            GamePeople.append(People[R])
             People.pop(R)
             People.pop(0)
     print(PeopleAll)
@@ -109,23 +112,3 @@ def pair():
     pair()
 _thread.start_new_thread(pair,())
 itchat.run()
-'''
-随机分配有可能会重复，存在问题。
-先忽略它吧...
-到这里已经把所有要随机分配的加入到People中了
-之后计划：
-使用多线程+for 第一个随机挑选剩下 然后确认<Status>值是否还是True(有中途离开) 然后更新状态 从people中删除 当len为0或者1的时候不工作，进入while延迟
-[线程开始]
-子程序开头
-while(len(People)<=1):
-    延迟指令(5s)
-while(len(People)>=2):
-    R=Random数
-    People[0] --> People[R]
-    if P[R]['Status']!=True:
-        people.pop(R)
-到子程序开头
-[线程结束]
-
-多线程参考 http://www.runoob.com/python3/python3-multithreading.html
-'''
