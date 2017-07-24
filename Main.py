@@ -1,11 +1,8 @@
 #使用3个list
-#[Wechat id]
-#[Room id]
-#{'Room id':[Wechatid1,Wechatid2]}
-#Free_People=[]
-##People[[WechatID,Gender,RoomID or Status,[...]]
-#PeopleAll{'UserName':{'Gender':'Male/Female','Status':'RoomID'/False,'ToUser':''}}
+#People[空闲wxid]
+#PeopleAll{'UserName':{'Gender':'微信提供','Status':True/False,'ToUser':''}}
 import itchat
+import _thread
 import time
 import random
 from itchat.content import *
@@ -64,7 +61,7 @@ def pair():
         time.sleep(10)
      #   print(0.1)
     while(len(People)>=2):
-        x=range(len(People))
+        x=list(range(len(People)))
      #   print(1)
         x.pop(0)
         R=random.choice(x)
@@ -92,13 +89,12 @@ def pair():
             itchat.send_msg('匹配成功,对方信息:'+Gender,toUserName=People[R])
             GamePeople.append(People[0])
             GamePeople.append(People[R])
-        if PeopleAll[People[0]]['Status']!=True:
-            People.pop(0)
-        if PeopleAll[People[R]]['Status']!=True:
             People.pop(R)
+            People.pop(0)
     print(PeopleAll)
     print(People)
     pair()
+_thread.start_new_thread(pair,())
 itchat.run()
 '''
 随机分配有可能会重复，存在问题。
