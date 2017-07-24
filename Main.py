@@ -113,3 +113,7 @@ def pair():
     pair()
 _thread.start_new_thread(pair,())
 itchat.run()
+#待解决：聊天中开始会重复加列表
+#图片/视频转发 语音文件转发
+#新加人以后自动刷新列表（60s线程刷新）
+#itchat不稳定，容易被封，整合成API加前端搭建服务器（长期目标 先用itchat）
