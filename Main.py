@@ -57,8 +57,8 @@ def message_recieved(msg):
                 itchat.send_msg('#[系统通知]对方已下线.',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
                 GamePeople.remove(PeopleAll[msg['FromUserName']]['ToUser'])
                 itchat.send_msg('#[系统通知]成功下线.',toUserName=msg['FromUserName'])
-                PeopleAll[msg['FromUserName']]['ToUser']=''
                 PeopleAll[PeopleAll[msg['FromUserName']]['ToUser']]['ToUser']=''
+                PeopleAll[msg['FromUserName']]['ToUser']=''
                 
     else:
         if msg['FromUserName'] not in GamePeople and msg['Content']!='开始':
