@@ -10,6 +10,8 @@ from itchat.content import *
 Room_Profile={}
 Room_id=[]
 People=[]
+Video_Limit=False
+Attachment_Limit=False
 PeopleAll={}
 GamePeople=[]
 print('Trying to log in Wechat Server Account.')
@@ -26,7 +28,7 @@ def message_recieved(msg):
     print(msg['Content'])
     if msg['Content']=='开始':
         if msg['FromUserName'] in PeopleAll:
-            if PeopleAll[msg['FromUserName']] in GamePeople:
+            if msg['FromUserName'] in GamePeople:
                 print('In Game')
                 itchat.send_msg('#[系统提示]您还在聊天中,请先结束聊天.本消息仅您可见.已发送\"开始\"至对方。',toUserName=msg['FromUserName'])
             elif PeopleAll[msg['FromUserName']]['Status']==True:
@@ -66,6 +68,46 @@ def message_recieved(msg):
             itchat.send_msg('您还没有开始聊天。请输入[开始]匹配对象。',toUserName=msg['FromUserName'])
             return
         itchat.send_msg(msg['Content'],toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+@itchat.msg_register(PICTURE)
+def picture_recieved(msg):
+    if msg['FromUserName'] not in GamePeople:
+        itchat.send_msg('您不在聊天中,图片/表情包将不会被接收.',toUserName=msg['FromUserName'])
+    else:
+        msg.download(msg.fileName)
+        itchat.send_msg('#[系统提示]对方发送了一张图片,正在处理,请稍等...',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+        itchat.send_image(msg.fileName,toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+@itchat.msg_register(VOICE)
+def voice_recieved(msg):
+    if msg['FromUserName'] not in GamePeople:
+        itchat.send_msg('您不在聊天中,语音将不会被接收.',toUserName=msg['FromUserName'])
+    else:
+        msg.download(msg.fileName)
+        itchat.send_msg('#[系统提示]对方发送了一条语音,正在处理,请稍等...',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+        itchat.send_file(msg.fileName,toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+@itchat.msg_register(VIDEO)
+def video_recieved(msg):
+    global Video_Limit
+    if msg['FromUserName'] not in GamePeople:
+        itchat.send_msg('您不在聊天中,视频将不会被接收.',toUserName=msg['FromUserName'])
+    else:
+        if Video_Limit==True:
+            itchat.send_msg('#[系统提示]当前服务器人数较多或在维护中,视频将不会被转发.',toUserName=msg['FromUserName'])
+            return
+        msg.download(msg.fileName)
+        itchat.send_msg('对方发送了一条视频消息,正在处理,请稍等...',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+        itchat.send_video(msg.fileName,toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+@itchat.msg_register(ATTACHMENT)
+def attachment_recieved(msg):
+    global Attachment_Limit
+    if msg['FromUserName'] not in GamePeople:
+        itchat.send_msg('您不在聊天中,附件将不会被接收.',toUserName=msg['FromUserName'])
+    else:
+        if Attachment_Limit==True:
+            itchat.send_msg('#[系统提示]当前服务器人数较多或在维护中,附件将不会被转发.',toUserName=msg['FromUserName'])
+            return
+        msg.download(msg.fileName)
+        itchat.send_msg('对方发送了一个附件,正在处理,请稍等...\n温馨提示:请小心病毒,切勿输入个人机密信息!',toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
+        itchat.send_file(msg.fileName,toUserName=PeopleAll[msg['FromUserName']]['ToUser'])
 def pair():
     global Room_Profile
     global Room_id
@@ -113,7 +155,3 @@ def pair():
     pair()
 _thread.start_new_thread(pair,())
 itchat.run()
-#待解决：聊天中开始会重复加列表
-#图片/视频转发 语音文件转发
-#新加人以后自动刷新列表（60s线程刷新）
-#itchat不稳定，容易被封，整合成API加前端搭建服务器（长期目标 先用itchat）
